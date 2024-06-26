@@ -1,3 +1,9 @@
 # smart-plant-monitor-system
 
 The goal of this project is to develop a smart system that monitors the health of a plant by measuring soil moisture, temperature, humidity, and light levels. Each node will feed the data to backend server and dashboard will showcase which plants need attention.
+
+## Stages
+- [x] Node publish sample json to mqtt broker
+- [ ] Node integrate with temperature and humid sensor
+- [ ] Node and stm32 connect with each other
+- [ ] Stm32 being able to publish data mqtt broker
