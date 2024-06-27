@@ -4,6 +4,9 @@ The goal of this project is to develop a smart system that monitors the health o
 
 ## Stages
 - [x] Node publish sample json to mqtt broker
-- [ ] Node integrate with temperature and humid sensor
+- [x] Node integrate with temperature and humid sensor
+- [ ] Check into node time update with pc clock via serial
+- [ ] Stabilize mqtt connection
+- [ ] Create ble node network
 - [ ] Node and stm32 connect with each other
 - [ ] Stm32 being able to publish data mqtt broker
