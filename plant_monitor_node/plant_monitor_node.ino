@@ -2,22 +2,27 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <DHT_U.h>
+
+#define DHTPIN 16     // Digital pin connected to the DHT sensor
+#define DHTTYPE    DHT22
+
+
+DHT_Unified dht(DHTPIN, DHTTYPE);
+
+
+// wifi connection
 const char* ssid     = "Sam"; // Change this to your WiFi SSID
 const char* password = "plth0000"; // Change this to your WiFi password
 
+
 // MQTT Broker
-// const char* mqtt_server = "192.168.1.144";
 const char* mqtt_server = "test.mosquitto.org";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
-
-// The default example accepts one data filed named "field1"
-// For your own server you can ofcourse create more of them.
-int field1 = 0;
-
-int numberOfResults = 3; // Number of results to be read
-int fieldNumber = 1; // Field number which will be read out
 
 const size_t bufferSize = JSON_OBJECT_SIZE(4);
 StaticJsonDocument<bufferSize> doc;  // JSON document for MQTT payload
@@ -28,7 +33,19 @@ void setup()
     Serial.begin(115200);
     while(!Serial){delay(100);}
 
-    // We start by connecting to a WiFi network
+    dht.begin();
+    sensor_t sensor;
+    dht.temperature().getSensor(&sensor);
+    Serial.println(F("Temperature Sensor"));
+    Serial.print  (F("Sensor Type: ")); Serial.println(sensor.name);
+    Serial.print  (F("Driver Ver:  ")); Serial.println(sensor.version);
+  
+    dht.humidity().getSensor(&sensor);
+    Serial.println(F("Humidity Sensor"));
+    Serial.print  (F("Sensor Type: ")); Serial.println(sensor.name);
+    Serial.print  (F("Driver Ver:  ")); Serial.println(sensor.version);
+
+    // connect to WiFi network
 
     Serial.println();
     Serial.println("******************************************************");
@@ -81,10 +98,26 @@ void loop(){
 
   doc.clear();  // Clear previous data
   doc["timestamp"] = "2024-04-02 15.33";
-  doc["temperature"] = 25.5;
-  doc["humidity"] = 25;
-  doc["sunlight"] = 2;
-  doc["moisture"] = 20;
+
+  sensors_event_t event;
+
+  // Get temperature
+  dht.temperature().getEvent(&event);
+  if (isnan(event.temperature)) {
+    Serial.println(F("Error reading temperature!"));
+  }
+  else {
+    doc["temperature"] = event.temperature;
+  }
+  
+  // Get humidity
+  dht.humidity().getEvent(&event);
+  if (isnan(event.relative_humidity)) {
+    Serial.println(F("Error reading humidity!"));
+  }
+  else {
+    doc["humidity"] = event.relative_humidity;
+  }
 
   // Serialize JSON to a char buffer
   char jsonBuffer[256];  // Adjust buffer size as needed
